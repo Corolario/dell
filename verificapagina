@@ -1,0 +1,43 @@
+from playwright.sync_api import sync_playwright
+
+def download_webpage(url):
+    with sync_playwright() as p:
+        browser = p.firefox.launch(headless=True)
+        page = browser.new_page()
+        page.goto(url)
+        html_content = page.content()
+        browser.close()
+        return html_content
+
+# Exemplo de uso
+url = "https://www.dell.com/pt-br/outlet/shop/desktop-all-in-ones/optiplex-desktops"
+html = download_webpage(url)
+print(html)
+
+
+import requests
+from bs4 import BeautifulSoup
+import time
+import datetime
+
+url = "https://www.dell.com/pt-br/outlet/shop"
+
+def verificacao():
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"}
+        resposta = requests.get(url, headers=headers)
+        resposta.raise_for_status()
+        soup = BeautifulSoup(resposta.text, "html.parser")
+        with open("conteudo.txt", "r") as arquivo:
+            conteudo_anterior = arquivo.read()
+        if soup.prettify() != conteudo_anterior:
+            agora = datetime.datetime.now()
+            print(f"{agora.strftime('%d/%m/%Y %H:%M:%S')} - A pagina foi alterada!")
+            with open("conteudo.txt", "w") as arquivo:
+                arquivo.write(soup.prettify())
+    except requests.exceptions.RequestException as e:
+        agora = datetime.datetime.now()
+        print(f"{agora.strftime('%d/%m/%Y %H:%M:%S')} - Ocorreu um erro ao acessar a URL: {e}")
+while True:
+    verificacao()
+    time.sleep(60)
