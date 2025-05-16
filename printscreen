@@ -1,0 +1,14 @@
+import time
+from playwright.sync_api import sync_playwright
+
+def run(playwright):
+    browser = playwright.firefox.launch(headless=True)  # Altere para True se n  o quiser ver o navegador
+    page = browser.new_page()
+    page.goto("https://www.dell.com/pt-br/outlet/shop/desktop-all-in-ones/optiplex-desktops")
+    time.sleep(25)
+    page.screenshot(path="screenshot.png", full_page=True)  # Tira uma captura de tela
+    print("Captura de tela salva como screenshot.png")
+    browser.close()
+
+with sync_playwright() as playwright:
+    run(playwright)
